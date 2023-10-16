@@ -1,14 +1,22 @@
-// Require express and body-parser
-const express = require("express");
-const bodyParser = require("body-parser");
-// Initialize express and define a port
-const app = express();
-const PORT = process.env.PORT || 3000;
-// Tell express to use body-parser's JSON parsing
-app.use(bodyParser.json());
-// Start express on the defined port
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-app.get("/", (req, res) => {
-    console.log(req.body);
-    res.status(200).end();
-});
+const net = require('net');
+const port = 3000;
+const host = '127.0.0.1';
+
+const server = net.createServer();
+
+server.listen(port, host, () => {
+    console.log(`Alarm server listening on port ${port}!`);
+})
+
+server.on('connection', (socket) => {
+    console.log(`NEW CONNECTION: ${socket.remoteAddress}:${socket.remotePort}`);
+
+    socket.on('data', (data) => {
+        console.log(`RECEIVED DATA FROM ${socket.remoteAddress}: ${data}`);
+        socket.write(data);
+    });
+
+    socket.on('close', (data) => {
+        console.log(`CLOSED CONNECTION WITH ${socket.remoteAddress}`);
+    });
+})
