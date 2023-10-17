@@ -19,4 +19,8 @@ server.on('connection', (socket) => {
     socket.on('close', (data) => {
         console.log(`CLOSED CONNECTION WITH ${socket.remoteAddress}`);
     });
-})
+
+    socket.on('error', (error) => {
+        console.log(`ERROR ENCOUNTERED WITH ${socket.remoteAddress}: ${error.message}`);
+    })
+});
