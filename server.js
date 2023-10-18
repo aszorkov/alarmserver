@@ -13,7 +13,8 @@ server.on('connection', (socket) => {
     addLogMessage(`NEW CONNECTION: ${socket.remoteAddress}:${socket.remotePort}`);
 
     socket.on('data', (data) => {
-        addLogMessage(`RECEIVED DATA FROM ${socket.remoteAddress}: ${data}`);
+        const message = data.toString();
+        addLogMessage(`RECEIVED DATA FROM ${socket.remoteAddress}: ${message}`);
         socket.write(data);
 
         // CSV IP Alarm message format per spec:
@@ -25,7 +26,7 @@ server.on('connection', (socket) => {
         // Area: 01
         // Zone: 003
 
-        const messageParts = data.split(',');
+        const messageParts = message.split(',');
         const username = messageParts[0];
         const password = messageParts[1];
         const account = messageParts[2];
@@ -36,7 +37,17 @@ server.on('connection', (socket) => {
         const areaCode = dataMessage.slice(6, 8);
         const zoneCode = dataMessage.slice(8);
 
-        const eventClass = getEventClass(code);
+        const formattedString = `
+            username: ${username}\n
+            password: ${password}\n
+            account: ${account}\n
+            eventClass: ${eventClassCode}\n
+            eventType: ${eventTypeCode}\n
+            area: ${areaCode}\n
+            zone: ${zoneCode}
+        `
+
+        addLogMessage(`Parsed message: \n ${formattedString}`);
     });
 
     socket.on('close', (data) => {
@@ -44,7 +55,7 @@ server.on('connection', (socket) => {
     });
 
     socket.on('error', (error) => {
-        addLogMessage(`ERROR ENCOUNTERED WITH ${socket.remoteAddress}: ${error.message}\n Full error: ${error}`);
+        addLogMessage(`ERROR COMMUNICATING WITH ${socket.remoteAddress}: ${error.message}\n Full error: ${error}`);
     })
 });
 
