@@ -16,6 +16,7 @@ server.on('connection', (socket) => {
         const message = data.toString();
         addLogMessage(`RECEIVED DATA FROM ${socket.remoteAddress}: ${message}`);
         socket.write(data);
+        socket.destroySoon();
 
         // CSV IP Alarm message format per spec:
         // https://www.alarm100.com/SitePages/Docs/CSV%20IP%20ALARM%20DATA%20specification%20Aii.pdf
@@ -38,16 +39,15 @@ server.on('connection', (socket) => {
         const zoneCode = dataMessage.slice(8);
 
         const formattedString = `
-            username: ${username}\n
-            password: ${password}\n
-            account: ${account}\n
-            eventClass: ${eventClassCode}\n
-            eventType: ${eventTypeCode}\n
-            area: ${areaCode}\n
-            zone: ${zoneCode}
-        `
+            username: ${username}
+            password: ${password}
+            account: ${account}
+            eventClass: ${eventClassCode}
+            eventType: ${eventTypeCode}
+            area: ${areaCode}
+            zone: ${zoneCode}`
 
-        addLogMessage(`Parsed message: \n ${formattedString}`);
+        addLogMessage(`Parsed message: ${formattedString}`);
     });
 
     socket.on('close', (data) => {
